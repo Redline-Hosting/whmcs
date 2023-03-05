@@ -78,7 +78,7 @@ function pterodactyl_API(array $params, $endpoint, array $data = [], $method = "
     $response = curl_exec($curl);
     $responseData = json_decode($response, true);
     $responseData['status_code'] = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    
+
     if($responseData['status_code'] === 0 && !$dontLog) logModuleCall("Pterodactyl-WHMCS", "CURL ERROR", curl_error($curl), "");
 
     curl_close($curl);
@@ -96,7 +96,7 @@ function pterodactyl_Error($func, $params, Exception $err) {
 
 function pterodactyl_MetaData() {
     return [
-        "DisplayName" => "Pterodactyl",
+        "DisplayName" => "Pterodactyl_RedlineHosting",
         "APIVersion" => "1.1",
         "RequiresServer" => true,
     ];
@@ -211,6 +211,12 @@ function pterodactyl_ConfigOptions() {
             "Type" => "text",
             "Size" => 10,
         ],
+        "username" => [
+            "FriendlyName" => "Client Panel Username",
+            "Description" => "Username to create the account with.",
+            "Type" => "text",
+            "Size" => 25,
+        ],
     ];
 }
 
@@ -310,7 +316,7 @@ function pterodactyl_CreateAccount(array $params) {
             $userResult = pterodactyl_API($params, 'users?filter[email]=' . urlencode($params['clientsdetails']['email']));
             if($userResult['meta']['pagination']['total'] === 0) {
                 $userResult = pterodactyl_API($params, 'users', [
-                    'username' => pterodactyl_GetOption($params, 'username', pterodactyl_GenerateUsername()),
+                    'username' => pterodactyl_GetOption($params, 'username'),
                     'email' => $params['clientsdetails']['email'],
                     'first_name' => $params['clientsdetails']['firstname'],
                     'last_name' => $params['clientsdetails']['lastname'],
